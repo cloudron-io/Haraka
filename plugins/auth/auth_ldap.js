@@ -15,11 +15,18 @@ exports.hook_capabilities = function (next, connection) {
 
 exports.register = function () {
     this.inherits('auth/auth_base');
+    this.load_ldap_ini();
 }
 
+exports.load_ldap_ini = function () {
+  var plugin = this;
+    plugin.cfg = plugin.config.get('auth_ldap.ini', function () {
+        plugin.load_ldap_ini();
+    });
+};
+
 exports.check_plain_passwd = function (connection, user, passwd, cb) {
-    // Get LDAP config
-    var config = this.config.get('auth_ldap.ini');
+    var config = this.cfg;
     var ldap_url = 'ldap://127.0.0.1';
     if (config.core.server) {
         ldap_url = config.core.server;
