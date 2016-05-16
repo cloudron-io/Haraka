@@ -1832,12 +1832,12 @@ HMailItem.prototype.bounce_respond = function (retval, msg) {
     var self = this;
     var err  = this.bounce_error;
 
-    if (!this.todo.mail_from.user) {
+    if (this.todo.notes.is_bounce) {
         // double bounce - mail was already a bounce
         return this.double_bounce("Mail was already a bounce");
     }
 
-    var from = new Address ('<>');
+    var from = new Address ('MAILER DAEMON', config.get('me'));
     var recip = new Address (this.todo.mail_from.user, this.todo.mail_from.host);
     this.populate_bounce_message(from, recip, err, function (err2, data_lines) {
         if (err2) {
@@ -1850,7 +1850,7 @@ HMailItem.prototype.bounce_respond = function (retval, msg) {
                 return self.double_bounce("Unable to queue the bounce message. Not sending bounce!");
             }
             self.discard();
-        });
+        }, { notes: { is_bounce: true } });
     });
 };
 
