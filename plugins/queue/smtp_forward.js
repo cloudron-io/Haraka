@@ -22,19 +22,13 @@ exports.register = function () {
 
     if (plugin.load_errs.length > 0) return;
 
-    if (plugin.cfg.main.check_sender) {
-        plugin.register_hook('mail', 'check_sender');
-    }
+    plugin.register_hook('mail', 'check_sender');
 
-    if (plugin.cfg.main.check_recipient) {
-        plugin.register_hook('rcpt', 'check_recipient');
-    }
+    plugin.register_hook('rcpt', 'check_recipient');
 
     plugin.register_hook('queue', 'queue_forward');
 
-    if (plugin.cfg.main.enable_outbound) {
-        plugin.register_hook('queue_outbound', 'queue_forward');
-    }
+    plugin.register_hook('queue_outbound', 'queue_forward');
 };
 
 exports.make_tls_opts = function () {
@@ -113,6 +107,8 @@ exports.check_sender = function (next, connection, params) {
     var txn = connection.transaction;
     if (!txn) return;
 
+    if (!plugin.cfg.main.check_sender) return next();
+
     var email = params[0].address();
     if (!email) {
         txn.results.add(plugin, {skip: 'mail_from.null', emit: true});
@@ -164,6 +160,8 @@ exports.check_recipient = function (next, connection, params) {
     var plugin = this;
     var txn = connection.transaction;
     if (!txn) return;
+
+    if (!plugin.cfg.main.check_recipient) return next();
 
     var rcpt = params[0];
     if (!rcpt.host) {
@@ -239,6 +237,8 @@ exports.auth = function (cfg, connection, smtp_client) {
 exports.queue_forward = function (next, connection) {
     var plugin = this;
     var txn = connection.transaction;
+
+    if (!plugin.cfg.main.enable_outbound) return next();
 
     if (txn.notes.queue && !/^smtp_forward/.test(txn.notes.queue))
         return next();
