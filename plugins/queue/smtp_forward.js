@@ -35,6 +35,7 @@ exports.load_smtp_forward_ini = function () {
     plugin.cfg = plugin.config.get('smtp_forward.ini', {
         booleans: [
             '-main.enable_tls',
+            '+main.enable_outbound',
             'main.one_message_per_rcpt',
             '-main.check_sender',
             '-main.check_recipient',
@@ -62,10 +63,12 @@ exports.get_config = function (connection) {
 exports.is_outbound_enabled = function (cfg) {
     const plugin = this;
 
-    // enable_outbound is true by default and can be explcitly disabled at domain level
-    // to keep compat with old behavior, disabling at top level disables for all domains
-    return plugin.cfg.enable_outbound !== 'false' && cfg.enable_outbound !== 'false';
-};
+    // enable_outbound can be set at domain level
+    if (cfg.enable_outbound !== undefined) return cfg.enable_outbound;
+
+    // use the default config
+    return plugin.cfg.main.enable_outbound;
+}
 
 exports.check_sender = function (next, connection, params) {
     const plugin = this;
@@ -219,7 +222,7 @@ exports.queue_forward = function (next, connection) {
         return next();
     }
 
-    smtp_client_mod.get_client_plugin(plugin, connection, cfg, function (err, smtp_client) {
+    smtp_client_mod.get_client_plugin(plugin, connection, cfg, (err, smtp_client) => {
         smtp_client.next = next;
 
         let rcpt = 0;
@@ -235,7 +238,7 @@ exports.queue_forward = function (next, connection) {
             return connection.results;
         }
 
-        const dead_sender = function () {
+        function dead_sender () {
             if (smtp_client.is_dead_sender(plugin, connection)) {
                 get_rs().add(plugin, { err: 'dead sender' });
                 return true;
