@@ -33,7 +33,7 @@ exports.loadingTLSConfig = {
 
         test.done();
     },
-};
+}
 
 exports.register = {
     setUp : _setup,
@@ -43,7 +43,7 @@ exports.register = {
         test.ok(this.plugin.cfg.main);
         test.done();
     },
-};
+}
 
 exports.get_config = {
     setUp : _setup,
@@ -110,23 +110,23 @@ exports.get_config = {
         test.deepEqual(cfg.host, '1.2.3.4' );
         test.done();
     },
-};
+}
 
 const hmail = { todo: { notes: {} } };
 exports.get_mx = {
     setUp : _setup,
     'returns no outbound route for undefined domains' : function (test) {
         test.expect(2);
-        const cb = function (code, mx) {
+        function cb (code, mx) {
             test.equal(code, undefined);
             test.deepEqual(mx, undefined);
             test.done();
-        };
+        }
         this.plugin.get_mx(cb, hmail, 'undefined.com');
     },
     'returns an outbound route for defined domains' : function (test) {
         test.expect(2);
-        const cb = function (code, mx) {
+        function cb (code, mx) {
             test.equal(code, OK);
             test.deepEqual(mx, {
                 priority: 0, exchange: '1.2.3.4', port: 2555,
@@ -134,7 +134,7 @@ exports.get_mx = {
                 auth_pass: 'superDuperSecret'
             });
             test.done();
-        };
+        }
         this.plugin.get_mx(cb, hmail, 'test.com');
     },
 }
@@ -148,8 +148,8 @@ exports.is_outbound_enabled = {
     },
     'enable_outbound can be set to "true"' : function (test) {
         test.expect(1);
-        this.plugin.cfg.enable_outbound = 'true';
-        test.equal(this.plugin.is_outbound_enabled(this.plugin.cfg), true);
+        this.plugin.cfg.main.enable_outbound = true;
+        test.equal(this.plugin.is_outbound_enabled(this.plugin.cfg.main), true);
         test.done();
     },
     'per-domain enable_outbound is true by default' : function (test) {
@@ -161,19 +161,19 @@ exports.is_outbound_enabled = {
     },
     'per-domain enable_outbound can be set to false' : function (test) {
         test.expect(1);
-        this.plugin.cfg['test.com'].enable_outbound = 'false';
+        this.plugin.cfg['test.com'].enable_outbound = false;
         this.connection.transaction.rcpt_to = [ new Address('<postmaster@test.com>') ];
         const cfg = this.plugin.get_config(this.connection);
         test.equal(this.plugin.is_outbound_enabled(cfg), false);
         test.done();
     },
-    'per-domain enable_outbound is ignored if top level is false' : function (test) {
+    'per-domain enable_outbound is preferred to top level' : function (test) {
         test.expect(1);
-        this.plugin.cfg.enable_outbound = 'false'; // this will be ignored
-        this.plugin.cfg['test.com'].enable_outbound = 'true'; // this will be ignored
+        this.plugin.cfg.main.enable_outbound = false; // this will be ignored
+        this.plugin.cfg['test.com'].enable_outbound = true;
         this.connection.transaction.rcpt_to = [ new Address('<postmaster@test.com>') ];
         const cfg = this.plugin.get_config(this.connection);
-        test.equal(this.plugin.is_outbound_enabled(cfg), false);
+        test.equal(this.plugin.is_outbound_enabled(cfg), true);
         test.done();
     }
 }
