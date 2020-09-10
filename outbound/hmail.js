@@ -600,7 +600,7 @@ class HMailItem extends events.EventEmitter {
 
         let fp_called = false;
 
-        function finish_processing_mail (success) {
+        function finish_processing_mail (success, error_reason) {
             if (fp_called) {
                 return self.logerror(`finish_processing_mail called multiple times! Stack: ${(new Error()).stack}`);
             }
@@ -609,14 +609,14 @@ class HMailItem extends events.EventEmitter {
                 self.refcount++;
                 self.split_to_new_recipients(fail_recips, "Some recipients temporarily failed", hmail => {
                     self.discard();
-                    hmail.temp_fail(`Some recipients temp failed: ${fail_recips.join(', ')}`, { rcpt: fail_recips, mx });
+                    hmail.temp_fail(`Some recipients temp failed: ${fail_recips.join(', ')}. Reason: ${error_reason}`, { rcpt: fail_recips, mx });
                 });
             }
             if (bounce_recips.length) {
                 self.refcount++;
                 self.split_to_new_recipients(bounce_recips, "Some recipients rejected", hmail => {
                     self.discard();
-                    hmail.bounce(`Some recipients failed: ${bounce_recips.join(', ')}`, { rcpt: bounce_recips, mx });
+                    hmail.bounce(`Some recipients failed: ${bounce_recips.join(', ')}. Reason: ${error_rason}`, { rcpt: bounce_recips, mx });
                 });
             }
             processing_mail = false;
@@ -728,7 +728,7 @@ class HMailItem extends events.EventEmitter {
                     if (command === 'dot_lmtp') {
                         response = [];
                         if (ok_recips.length === 0) {
-                            return finish_processing_mail(false);
+                            return finish_processing_mail(false, reason);
                         }
                     }
                 }
@@ -780,7 +780,7 @@ class HMailItem extends events.EventEmitter {
                     if (command === 'dot_lmtp') {
                         response = [];
                         if (ok_recips.length === 0) {
-                            return finish_processing_mail(false);
+                            return finish_processing_mail(false, reason);
                         }
                     }
                 }
@@ -856,7 +856,7 @@ class HMailItem extends events.EventEmitter {
                             send_command('DATA');
                         }
                         else {
-                            finish_processing_mail(false);
+                            finish_processing_mail(false, reason);
                         }
                     }
                     else {
