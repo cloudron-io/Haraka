@@ -36,10 +36,10 @@
     "haraka-tld": "^1.2.4",
     "haraka-utils": "^1.1.4",
     "ipaddr.js": "~2.2.0",
-    "node-gyp": "^11.5.0",
-    "nopt": "^8.1.0",
+    "node-gyp": "^12.1.0",
+    "nopt": "^9.0.0",
     "npid": "~0.4.0",
-    "redis": "~5.8.3",
+    "redis": "~5.10.0",
     "semver": "^7.7.3",
     "sockaddr": "^1.0.1",
     "sprintf-js": "~1.1.3"
