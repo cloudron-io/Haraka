@@ -275,18 +275,14 @@ class HMailItem extends events.EventEmitter {
             case 'v4':
                 logger.notice(this, 'USING THE V4 METHOD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + JSON.stringify(this.mxlist));
                 this.mxlist = [
-                    ...this.mxlist.filter(mx => {
-                        !net.isIP(mx.exchange) || net.isIPv4(mx.exchange)
-                    }),
+                    ...this.mxlist.filter(mx => !net.isIP(mx.exchange) || net.isIPv4(mx.exchange)),
                     ...this.mxlist.filter(mx => net.isIPv6(mx.exchange))
                 ];
                 logger.notice(this, 'AFTER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + JSON.stringify(this.mxlist));
                 break;
             case 'v6':
                 this.mxlist = [
-                    ...this.mxlist.filter(mx => {
-                        !net.isIP(mx.exchange) || net.isIPv6(mx.exchange)
-                    }),
+                    ...this.mxlist.filter(mx => !net.isIP(mx.exchange) || net.isIPv6(mx.exchange)),
                     ...this.mxlist.filter(mx => net.isIPv4(mx.exchange))
                 ];
                 break;
