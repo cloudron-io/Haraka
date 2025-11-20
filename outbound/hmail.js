@@ -269,14 +269,18 @@ class HMailItem extends events.EventEmitter {
         // resolves the MX hostnames to IPs
         this.mxlist = await net_utils.resolve_mx_hosts(mxs);
 
+                logger.notice(this, 'USING THE METHOD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + obc.cfg.inet_prefer);
+
         switch (obc.cfg.inet_prefer) {
             case 'v4':
+                logger.notice(this, 'USING THE V4 METHOD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + JSON.stringify(this.mxlist));
                 this.mxlist = [
                     ...this.mxlist.filter(mx => {
                         !net.isIP(mx.exchange) || net.isIPv4(mx.exchange)
                     }),
                     ...this.mxlist.filter(mx => net.isIPv6(mx.exchange))
                 ];
+                logger.notice(this, 'AFTER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + JSON.stringify(this.mxlist));
                 break;
             case 'v6':
                 this.mxlist = [

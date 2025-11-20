@@ -22,6 +22,7 @@ function load_config () {
         logger.warn(exports, `inet_prefer is set to an invalid value: ${cfg.inet_prefer}`);
         cfg.inet_prefer = 'default';
     }
+logger.warn(exports, `XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX: ${cfg.inet_prefer}`);
 
     // legacy config file support. Remove in Haraka 4.0
     if (!cfg.disabled && config.get('outbound.disabled')) {
